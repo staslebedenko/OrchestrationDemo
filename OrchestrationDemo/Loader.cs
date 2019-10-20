@@ -11,7 +11,7 @@ namespace OrchestrationDemo
     {
         [FunctionName("Loader")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "loaderio-1a9e53e1b54a2cd126eb9ba81c5601ba")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "loaderio-1a9e53e1b54a2cd126eb9ba81c5601ba")] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("Loader.io validation triggered.");

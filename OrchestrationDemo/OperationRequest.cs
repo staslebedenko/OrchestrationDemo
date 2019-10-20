@@ -10,6 +10,11 @@ using Newtonsoft.Json;
 
 namespace ServerlessWorkshop
 {
+    // TODO output result to storage queue.
+    // add storage queue trigger to Orchestrator.
+    // Add name in calculation. Add random number generator from functions
+    // fortune teller machine called Zoltar from the Big
+
     public static class OperationRequest
     {
         [FunctionName("OperationRequest")]
