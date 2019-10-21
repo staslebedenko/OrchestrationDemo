@@ -9,8 +9,8 @@ namespace OrchestrationDemo
 {
     public static class Loader
     {
-        [FunctionName("Loader")]
-        public static async Task<IActionResult> Run(
+        [FunctionName("LoaderActivation")]
+        public static async Task<IActionResult> LoaderActivation(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "loaderio-1a9e53e1b54a2cd126eb9ba81c5601ba")] HttpRequest req,
             ILogger log)
         {

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace ServerlessWorkshop
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+
+namespace OrchestrationDemo
 {
     public static class Orchestrator
     {
@@ -16,41 +13,49 @@ namespace ServerlessWorkshop
         public static async Task<List<string>> RunOrchestrator(
             [OrchestrationTrigger] DurableOrchestrationContext context)
         {
+            var name = context.GetInput<Person>();
+
             var outputs = new List<string>();
 
-            outputs.Add(await context.CallActivityAsync<string>("FortuneTeller", "name"));
-            outputs.Add(await context.CallActivityAsync<string>("FortuneTeller", "name"));
-            outputs.Add(await context.CallActivityAsync<string>("FortuneTeller", "name"));
+            outputs.Add(await context.CallActivityAsync<string>("FortuneTeller", name));
+            outputs.Add(await context.CallActivityAsync<string>("FortuneTeller", name));
+            outputs.Add(await context.CallActivityAsync<string>("FortuneTeller", name));
+            context.SetCustomStatus("Completed");
 
             return outputs;
         }
-
-        [FunctionName("Orchestrator_HttpStart")]
-        public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get")]HttpRequestMessage req,
+       
+        [FunctionName("Orchestrator_Start")]
+        public static async void StartOrchestrator(
+            [QueueTrigger("incoming-requests", Connection = "StorageConnectionString")] string name,
             [OrchestrationClient]DurableOrchestrationClient starter,
-            [Blob("unique-permission-reports", Connection = "BlobStorageConnStr")] CloudBlobContainer blobContainer,
+            [Queue("zoltar-results", Connection = "StorageConnectionString")] IAsyncCollector<string> messages,
             ILogger log)
         {
-            // Function input comes from the request content.
-            string instanceId = await starter.StartNewAsync("Orchestrator", null);
+            var person = new Person { Name = name };
 
-            log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
-            var timeout = TimeSpan.FromSeconds(20);
-            var retryInterval = TimeSpan.FromSeconds(1); // How often to check the orchestration instance for completion
-            var result = await starter.WaitForCompletionOrCreateCheckStatusResponseAsync(req, instanceId, timeout, retryInterval);
-            return result;
-            // return starter.CreateCheckStatusResponse(req, instanceId).;
+            var instanceId = await starter.StartNewAsync("Orchestrator", person);
+
+            var status = await starter.GetStatusAsync(instanceId);
+
+            while (status.CustomStatus.ToString() != "Completed")
+            {
+                await Task.Delay(200);
+                status = await starter.GetStatusAsync(instanceId);
+            }
+
+            var prediction = $"Zoltar speaks! {name}, your rate will be on of those '{status.Output}'.";
+
+            await messages.AddAsync(prediction);
+
+            log.LogInformation(prediction);
         }
 
         [FunctionName("FortuneTeller")]
-        public static string FortuneTeller([ActivityTrigger] string name, ILogger log)
+        public static int FortuneTeller([ActivityTrigger] string name, ILogger log)
         {
             var random = new Random();
-            var rate = random.Next(25, 100);
-            var prediction = $"Next year rate for {name} is {rate}";
-            log.LogInformation(prediction);
-            return prediction;
+            return random.Next(25, 75);
         }
     }
 }

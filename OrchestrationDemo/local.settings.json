@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "f99435fd-8b21-4c4c-a242-9ee8d6f11c42",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=servdemo2020;AccountKey=rGqvEDx4rOLR9J1cOwREC8eW5Fth70Lb9AWUPX4uBRtDyVbWoS42CFP1LQd5iANEaL7dmU7q4bSvJ5y/ZT6v8Q==;EndpointSuffix=core.windows.net"
+  }
+}

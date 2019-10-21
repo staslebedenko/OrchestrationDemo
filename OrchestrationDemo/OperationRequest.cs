@@ -1,37 +1,26 @@
-using System;
-using System.IO;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
-namespace ServerlessWorkshop
+namespace OrchestrationDemo
 {
-    // TODO output result to storage queue.
-    // add storage queue trigger to Orchestrator.
-    // Add name in calculation. Add random number generator from functions
-    // fortune teller machine called Zoltar from the Big
-
     public static class OperationRequest
     {
-        [FunctionName("OperationRequest")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        [FunctionName("Zoltan")]
+        public static async Task<IActionResult> Zoltan(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "askZoltar/{name}")] HttpRequest req,
+            string name,
+            ILogger log,
+            [Queue("incoming-requests", Connection = "StorageConnectionString")] IAsyncCollector<string> messages)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            await messages.AddAsync(name);
 
             return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
+                ? (ActionResult)new OkObjectResult($"Dear {name}, you request to Zoltar is accepted")
                 : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
         }
     }
