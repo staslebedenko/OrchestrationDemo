@@ -10,8 +10,8 @@ namespace OrchestrationDemo
 {
     public static class OperationRequest
     {
-        [FunctionName("Zoltan")]
-        public static async Task<IActionResult> Zoltan(
+        [FunctionName("Zoltar")]
+        public static async Task<IActionResult> Zoltar(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "askZoltar/{name}")] HttpRequest req,
             string name,
             ILogger log,
