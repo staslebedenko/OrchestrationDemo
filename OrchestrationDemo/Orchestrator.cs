@@ -37,7 +37,7 @@ namespace OrchestrationDemo
        
         [FunctionName("Orchestrator_Start")]
         public static async void StartOrchestrator(
-            [QueueTrigger("incoming-requests", Connection = "StorageConnectionString")] string name,
+            [QueueTrigger("zoltar-requests", Connection = "StorageConnectionString")] string name,
             [DurableClient] IDurableOrchestrationClient starter,
             [Queue("zoltar-results", Connection = "StorageConnectionString")] IAsyncCollector<string> messages,
             ILogger log)

@@ -263,3 +263,4 @@ paket-files/
 __pycache__/
 *.pyc
 ServerlessLoadTest/Properties/PublishProfiles/AtomServDemo2019 - Web Deploy.pubxml
+*.pubxml

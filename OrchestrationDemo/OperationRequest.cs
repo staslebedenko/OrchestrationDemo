@@ -15,7 +15,7 @@ namespace OrchestrationDemo
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "askZoltar/{name}")] HttpRequest req,
             string name,
             ILogger log,
-            [Queue("incoming-requests", Connection = "StorageConnectionString")] IAsyncCollector<string> messages)
+            [Queue("zoltar-requests", Connection = "StorageConnectionString")] IAsyncCollector<string> messages)
         {
             await messages.AddAsync(name);
 
