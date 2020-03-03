@@ -102,6 +102,7 @@ az functionapp update --resource-group $groupName --name $applicationName --set 
 az functionapp identity assign --resource-group $groupName --name $applicationName
 
 az functionapp config appsettings set --resource-group $groupName --name $applicationName --settings "MSDEPLOY_RENAME_LOCKED_FILES=1"
+az functionapp config appsettings set --resource-group $groupName --name $applicationName --settings ASPNETCORE_ENVIRONMENT=Production
 
 managedIdKey=$(az functionapp identity show --name $applicationName --resource-group $groupName --query principalId --o tsv)
 echo "Managed Id key = " $managedIdKey
