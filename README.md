@@ -1,11 +1,6 @@
 # OrchestrationDemo
 Demo application for data processing with Azure Durable Functions. 
 
-This demo is a part of the ".NET Fest 2019" talk "Practical serverless use cases in Azure with a trick or two".
-
-https://www.youtube.com/watch?v=eHMBBUck24A&list=PLuOBDBq7MW72wvYB5l5pmwBYdF9bY3Ctx&index=35&t=0s
-
-
 Durable orchestration with Zoltar 8-).
 
 ```bash
@@ -56,7 +51,7 @@ az storage container create --name $blobName \
 
 requestQueue=zoltar-requests
 resultQueue=zoltar-results
-errorQueue=zoltar-results
+errorQueue=zoltar-errors
 
 az storage queue create --name $requestQueue --account-key $accountKey \
 --account-name $accountName --connection-string $storageAccConString
@@ -66,20 +61,6 @@ az storage queue create --name $resultQueue --account-key $accountKey \
 
 az storage queue create --name $errorQueue --account-key $accountKey \
 --account-name $accountName --connection-string $storageAccConString
-
-#----------------------------------------------------------------------------------
-# Application insights instance
-#----------------------------------------------------------------------------------
-
-insightsName=${groupName,,}
-echo "insightsName  = " $insightsName
-
-# drop this command with ctrl+c after 3 minutes of execution
-az resource create --resource-group $groupName --name $insightsName --resource-type "Microsoft.Insights/components" --location $location --properties '{"Application_Type":"web"}' --verbose
-
-insightsKey=$(az resource show -g $groupName -n $insightsName --resource-type "Microsoft.Insights/components" --query properties.InstrumentationKey --o tsv) 
-echo "Insights key = " $insightsKey
-
 
 #----------------------------------------------------------------------------------
 # Function app with consumption plan. Use KeyVault in production :)
@@ -93,7 +74,7 @@ echo "applicationName  = " $applicationName
 
 az functionapp create --resource-group $groupName \
 --name $applicationName --storage-account $accountName --runtime $runtime \
---app-insights-key $insightsKey --consumption-plan-location $location
+--consumption-plan-location $location --functions-version 3
 
 az functionapp deployment slot create --resource-group $groupName --name $applicationName --slot staging
 
@@ -104,7 +85,7 @@ az functionapp identity assign --resource-group $groupName --name $applicationNa
 az functionapp config appsettings set --resource-group $groupName --name $applicationName --settings "MSDEPLOY_RENAME_LOCKED_FILES=1"
 az functionapp config appsettings set --resource-group $groupName --name $applicationName --settings ASPNETCORE_ENVIRONMENT=Production
 
-managedIdKey=$(az functionapp identity show --name $applicationName --resource-group $groupName --query principalId --o tsv)
+managedIdKey=$(az functionapp identity show --name $applicationName --resource-group $groupName --query principalId --output tsv)
 echo "Managed Id key = " $managedIdKey
 
 #----------------------------------------------------------------------------------
